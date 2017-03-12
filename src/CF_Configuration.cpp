@@ -13,15 +13,21 @@ const uint8_t MAGIC_NUMBER = 123;
 #define VERSION_NUMBER_SIZE sizeof(uint8_t)
 #define STORE_PARAM_OFFSET (MAGIC_NUMBER_SIZE + VERSION_NUMBER_SIZE)
 
+#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000)
+  #define POINTER_SIZE sizeof(uint32_t)
+#else
+  #define POINTER_SIZE sizeof(uint16_t)
+#endif
+
 /*
  * Classes with virtual methods come with a "superclass" pointer occupying the
  * first two bytes of the in-memory class object:
  */
-#define SUPERCLASS_PTR_SIZE sizeof(uint16_t)
+#define SUPERCLASS_PTR_SIZE POINTER_SIZE
 /*
  * Pointer to AbstractStore object:
  */
-#define STORE_PTR_SIZE sizeof(uint16_t)
+#define STORE_PTR_SIZE POINTER_SIZE
 /*
  * This is where the actual configuration params starts in RAM (byte offset):
  */

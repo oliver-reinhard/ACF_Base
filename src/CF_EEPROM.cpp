@@ -1,3 +1,5 @@
+// AMD M0 processors don't have an EEPROM:
+#if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
 
 #include <CF_EEPROM.h>
   
@@ -51,3 +53,4 @@ bool EEPROMStore::update8(uint32_t idx, uint8_t val) {
   return true;
 }
 
+#endif

@@ -1,7 +1,11 @@
 #ifndef CF_EEPROM_H_INCLUDED
   #define CF_EEPROM_H_INCLUDED
 
-  #include <EEPROM.h>
+
+  #if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
+	// AMD Cortana M0 chips don't have an EEPROM
+    #include <EEPROM.h>
+  #endif
   #include <CF_Store.h>
   
   /*

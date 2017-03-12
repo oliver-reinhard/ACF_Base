@@ -3,7 +3,9 @@
 #define UNIT_TEST
 
 #include <CF_Store.h>
-#include <CF_EEPROM.h>
+#if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
+  #include <CF_EEPROM.h>
+#endif
 #include <CF_FRAM.h>
 
 //#define DEBUG_UT_LOGGING
@@ -14,6 +16,8 @@ void setup() {
     ; // wait for serial port to connect.
   }
   //Test::min_verbosity = TEST_VERBOSITY_ALL;
+  //Test::exclude("*");
+  //Test::include(“*FRAM”);
 }
 
 void loop() {
@@ -43,9 +47,14 @@ test(a_RAM) {
 
 
 test(b_EEPROM) {
-  EEPROMStore store = EEPROMStore(STORE_OFFSET, STORE_SIZE);
-  assertTrue(store.expiringMedia());
-  readWrite(&store, __FILE_NAME_STR);
+  #if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000)
+    Serial.println(F("SAMD M0 board does not feature EEPROM"));
+    fail();
+  #else
+    EEPROMStore store = EEPROMStore(STORE_OFFSET, STORE_SIZE);
+    assertTrue(store.expiringMedia());
+    readWrite(&store, __FILE_NAME_STR)
+  #endif
 }
 
 

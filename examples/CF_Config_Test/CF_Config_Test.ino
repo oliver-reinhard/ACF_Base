@@ -14,6 +14,8 @@ void setup() {
     ; // wait for serial port to connect.
   }
   //Test::min_verbosity = TEST_VERBOSITY_ALL;
+  //Test::exclude("*");
+  //Test::include(“params_a”);
 }
 
 void loop() {
