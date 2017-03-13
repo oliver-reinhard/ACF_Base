@@ -4,20 +4,22 @@
   #include <CF_LogTime.h>
   #include <CF_Store.h>
 
-  // Define this symbol in an including module (prior to #include "Logging.h") to have a different payload size (in Byte):
+  // Define this symbol in an including module (prior to #include "CF_Logging.h") to have a different payload size (in Byte):
+  //
+  // Note: Memory alignment can mean that struct fields of 1 byte actually occupy 2, e.g. uint8_t
   #ifndef LOG_DATA_PAYLOAD_SIZE
-    #define LOG_DATA_PAYLOAD_SIZE 5
+    #define LOG_DATA_PAYLOAD_SIZE 6
   #endif
 
-  // Define this symbol in an including module (prior to #include "Logging.h") to define the LED pin for issuing fatal S.O.S.:
+  // Define this symbol in an including module (prior to #include "CF_Logging.h") to define the LED pin for issuing fatal S.O.S.:
   #ifndef SOS_LED_PIN
     #define SOS_LED_PIN 13
   #endif
 
   #define S_O_S(flashStringHelper) write_S_O_S(flashStringHelper, __LINE__)
   #define ASSERT(cond, msg) ((cond) ? (void)0 : S_O_S(F(msg)))
-  
-  /* 
+
+  /*
    *  Storage type for message identifiers.
    */
   typedef uint8_t MessageID;
@@ -30,7 +32,8 @@
   typedef enum {
     MSG_SYSTEM_INIT = 0,      // The board is initialising from reset or power on [no parameters]
     MSG_LOG_INIT = 1,         // Log initialised [no parameters]
-    MSG_LOG_SIZE_CHG = 2,     // Number of log entries has changed from [old] to [new])
+    MSG_LOG_MAGIC_NUMBER = 2, // Log was cleared because magic number was not detected ->
+    MSG_LOG_SIZE_CHG = 3,     // Log was cleared because number of log entries has changed from [old] to [new])
   } AbstractLogMessageEnum;
   
   /**
@@ -38,7 +41,7 @@
    * Note: The actual payload size can be configured / changed via symbol definition (LOG_DATA_PAYLOAD_SIZE).
    */
   struct LogData {
-    byte payload[LOG_DATA_PAYLOAD_SIZE]; // placeholder
+    uint8_t payload[LOG_DATA_PAYLOAD_SIZE]; // placeholder
   };
   
   /*
@@ -138,7 +141,8 @@
       /*
        * Log a message.
        * Note: this function is purely virtual. It has not been implemented in order to leave the definition of
-       *       the message data structure to the consumers of this library. Use addLogEntry() to create of a new log entry.
+       *       the message data structure to the consumers of this library. In its implementation, use addLogEntry() 
+	   *       to create of a new log entry.
        */
       virtual Timestamp logMessage(MessageID id, int16_t param1, int16_t param2) = 0;
       
@@ -182,8 +186,13 @@
        * The number of slots reserved for log entries in log space.
        * Note: this is the number of slots with differs from 'maximum number' which is the actually available number of slots (one slot is always kept free)
        */
-      uint16_t logEntrySlots;
-      
+	  uint16_t logEntrySlots;
+	  
+	  /*
+	   * Returns the "magic number" on the store used to identify whether the config area in the storage has been initialised.
+	   */
+	  uint8_t magicNumber();
+	  
   #ifdef UNIT_TEST  // make available for unit tests
     public:
   #endif

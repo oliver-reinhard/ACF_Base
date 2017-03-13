@@ -2,18 +2,31 @@
 
 // #define DEBUG_LOG
 
-#define LOG_ENTRY_SIZE sizeof(LogEntry)
+/*
+ * The magic number is the first byte of the log area. During startup it enables the detection of whether
+ * the log area has been initialised before because the store cells of an (Arduino) board being read for the
+ * very first time *cannot be assumed to be 0x0* !!
+ */
+const uint8_t MAGIC_NUMBER = 199;
+
+#define MAGIC_NUMBER_SIZE sizeof(uint8_t)
 #define NUM_SLOTS_SIZE sizeof(uint16_t)
+#define LOG_ENTRIES_OFFSET (MAGIC_NUMBER_SIZE + NUM_SLOTS_SIZE)
+#define LOG_ENTRY_SIZE sizeof(LogEntry)
 
 
 AbstractLog::AbstractLog(AbstractStore *store) {
   ASSERT(store != NULL, "constructor:store");
   this->store = store;
-  logEntrySlots = (store->size() - NUM_SLOTS_SIZE) / LOG_ENTRY_SIZE;
-}   
+  logEntrySlots = (store->size() - LOG_ENTRIES_OFFSET) / LOG_ENTRY_SIZE;
+}
+
+uint8_t AbstractLog::magicNumber() {
+	return store->read8(0);
+}
 
 uint16_t AbstractLog::entryOffset(uint16_t index) {
-  return NUM_SLOTS_SIZE + index * LOG_ENTRY_SIZE;
+  return LOG_ENTRIES_OFFSET + index * LOG_ENTRY_SIZE;
 }
 
 uint16_t AbstractLog::maxLogEntries() {
@@ -28,10 +41,11 @@ uint16_t AbstractLog::currentLogEntries() {
 
 void AbstractLog::clear() {
   #ifdef DEBUG_LOG
-    Serial.print(F("DEBUG_LOG: resetLog() [new] log size: "));
+    Serial.print(F("DEBUG_LOG: clear() [new] log size: "));
     Serial.println(logEntrySlots);
   #endif
-  store->update(0, logEntrySlots);
+  store->update8(0, MAGIC_NUMBER);
+  store->update(MAGIC_NUMBER_SIZE, logEntrySlots);
   // clear
   for (uint16_t i = 0; i < logEntrySlots; i++) {
     clearLogEntry(i);
@@ -50,14 +64,20 @@ void AbstractLog::init() {
   // Check if the number of log entries has changed (typically by changing from unit tests to production):
   //
   uint16_t oldMaxLogEntries;
-  store->read(0, oldMaxLogEntries);
+  store->read(MAGIC_NUMBER_SIZE, oldMaxLogEntries);
   #ifdef DEBUG_LOG
-    Serial.print(F("DEBUG_LOG: initlog() stored log size: "));
+    Serial.print(F("DEBUG_LOG: init() stored log size: "));
     Serial.println(oldMaxLogEntries);
   #endif
-  if (oldMaxLogEntries != logEntrySlots) {
+  const bool wrongMagicNumber = magicNumber() != MAGIC_NUMBER;
+  const bool logEntriesChanged = oldMaxLogEntries != logEntrySlots;
+  if (wrongMagicNumber || logEntriesChanged) {
     clear();
-    logMessage(MSG_LOG_SIZE_CHG, oldMaxLogEntries, logEntrySlots);
+    if (wrongMagicNumber) {
+      logMessage(MSG_LOG_MAGIC_NUMBER, 0, 0);
+	} else {
+	  logMessage(MSG_LOG_SIZE_CHG, oldMaxLogEntries, logEntrySlots);
+	}
     return;
   }
   
@@ -103,7 +123,7 @@ void AbstractLog::init() {
   }
   ASSERT(logTailIndex != logEntrySlots , "initLog:tail");
   #ifdef DEBUG_LOG
-	Serial.print(F("           initlog() entries: "));
+	Serial.print(F("           init() entries: "));
 	Serial.println(currentLogEntries());
   #endif
 }

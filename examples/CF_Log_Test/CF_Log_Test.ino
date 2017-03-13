@@ -12,8 +12,8 @@ void setup() {
     ; // wait for serial port to connect.
   }
   //Test::min_verbosity = TEST_VERBOSITY_ALL;
-  //Test::exclude("*");
-  //Test::include(“a_log*”);
+  Test::exclude("*");
+  Test::include("c_log_init_clear*");
 }
 
 void loop() {
@@ -22,7 +22,7 @@ void loop() {
 
 
 #define UNIT_TEST_LOG_ENTRIES 5  // numer of LogEntry slots
-#define STORE_SIZE (sizeof(uint16_t) + UNIT_TEST_LOG_ENTRIES * sizeof(LogEntry))  // uint16_t = number of logEntries
+#define STORE_SIZE (sizeof(uint8_t) + sizeof(uint16_t) + UNIT_TEST_LOG_ENTRIES * sizeof(LogEntry))  // uint16_t = number of logEntries
 
 typedef enum {
   LOG_TYPE_MESSAGE = 0,
@@ -149,7 +149,27 @@ test(b_log_init) {
   assertEqual(logging.logHeadIndex, 2);
 }
 
-test(c_log_reader_unnotified) {
+test(c_log_init_clear) {
+  RAMStore store = RAMStore(STORE_SIZE); 
+  TestLog logging = TestLog(&store);
+
+  // Test initialisation:
+  logging.clear();
+  uint8_t magicNumber = store.read8(0);
+  logging.init();
+  logging.logValues(3000);
+  logging.logValues(3100);
+  assertEqual(3, logging.currentLogEntries());
+
+  // delete magic number --> must clear and rewrite magic number
+  store.write8(0, 0);
+  assertEqual(0, store.read8(0));
+  logging.init();
+  assertEqual(magicNumber, store.read8(0));
+  assertEqual(2, logging.currentLogEntries());
+}
+
+test(d_log_reader_unnotified) {
   RAMStore store = RAMStore(STORE_SIZE); 
   TestLog logging = TestLog(&store);
 
@@ -192,7 +212,7 @@ test(c_log_reader_unnotified) {
   assertEqual(lvd3.value, 3200);
 }
 
-test(d_log_reader_most_recent) {
+test(e_log_reader_most_recent) {
   RAMStore store = RAMStore(STORE_SIZE); 
   TestLog logging = TestLog(&store);
 
@@ -237,4 +257,3 @@ test(z_s_o_s) {
   S_O_S(F("Program execution halted, S.O.S. Verify line number with test-code"));
 }
 */
-

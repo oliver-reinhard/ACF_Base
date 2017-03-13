@@ -3,7 +3,7 @@
 //#define DEBUG_CONFIG
 
 /*
- * The magic number is the first byte of the store config area. During startup it enables the detection of whether
+ * The magic number is the first byte of the config area. During startup it enables the detection of whether
  * the config area has been initialised before because the store cells of an (Arduino) board being read for the
  * very first time *cannot be assumed to be 0x0* !!
  */
