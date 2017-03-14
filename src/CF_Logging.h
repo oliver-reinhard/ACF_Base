@@ -13,7 +13,7 @@
 
   // Define this symbol in an including module (prior to #include "CF_Logging.h") to define the LED pin for issuing fatal S.O.S.:
   #ifndef SOS_LED_PIN
-    #define SOS_LED_PIN 13
+    #define SOS_LED_PIN LED_BUILTIN
   #endif
 
   #define S_O_S(flashStringHelper) write_S_O_S(flashStringHelper, __LINE__)

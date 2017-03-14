@@ -12,8 +12,9 @@ void setup() {
     ; // wait for serial port to connect.
   }
   //Test::min_verbosity = TEST_VERBOSITY_ALL;
-  Test::exclude("*");
-  Test::include("c_log_init_clear*");
+  //Test::exclude("*");
+  //Test::include("c_log_init_clear*");
+  //Test::exclude("z_s_o_s");
 }
 
 void loop() {
@@ -252,8 +253,6 @@ test(e_log_reader_most_recent) {
   assertFalse(logging.nextLogEntry(e));
 }
 
-/*
 test(z_s_o_s) {
   S_O_S(F("Program execution halted, S.O.S. Verify line number with test-code"));
 }
-*/

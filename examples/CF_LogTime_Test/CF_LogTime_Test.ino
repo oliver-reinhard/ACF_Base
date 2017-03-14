@@ -12,7 +12,7 @@ void setup() {
   }
   //Test::min_verbosity = TEST_VERBOSITY_ALL;
   //Test::exclude("*");
-  //Test::include(“*FRAM”);
+  //Test::include("*FRAM");
 }
 
 void loop() {

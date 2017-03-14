@@ -25,7 +25,7 @@
 	  /*
 	   * Convenience constructor that grabs the remaining space on the EEPROM.
 	   */
-	  EEPROMStore(const uint32_t offset) : AbstractStore(offset, EEPROM.length() - offset)  { }
+	  EEPROMStore(const uint32_t offset) : EEPROMStore(offset, EEPROM.length() - offset)  { }
 	  
 	  /*
 	   * Convenience constructor; allocates storage on the same FRAM chip and immediately adjacent to another EEPROMStore

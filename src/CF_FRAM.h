@@ -21,7 +21,7 @@
 	  /*
 	   * Convenience constructor; allocates storage at offset 0x0.
 	   */
-	  FRAMStore(const uint32_t size) : AbstractStore(0, size)  { }
+	  FRAMStore(const uint32_t size) : FRAMStore((uint32_t) 0, size)  { }
 	  
 	  /*
 	   * Convenience constructor; allocates storage on the same FRAM chip and immediately adjacent to another FRAMStore

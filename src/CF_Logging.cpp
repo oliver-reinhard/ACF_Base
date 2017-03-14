@@ -234,10 +234,11 @@ boolean AbstractLog::nextLogEntry(LogEntry &entry) {
  * Infinite loop, never ends.
  */
 void blink_S_O_S() {
-  int pulse = 300; // [ms]
+  pinMode(SOS_LED_PIN, OUTPUT);
+  int pulse = 600; // [ms]
   while(1) {
-    // S.O.S. . . . – – – . . .
-    pulse = (pulse + 200) % 400; // toggles between 100 and 300 ms
+    // S.O.S. = . . . – – – . . .
+    pulse = (pulse + 400) % 800; // toggles between 200 and 600 ms
     delay(pulse);
     for(byte i=0; i<3; i++) {
       digitalWrite(SOS_LED_PIN, HIGH);

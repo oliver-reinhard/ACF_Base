@@ -1,17 +1,19 @@
 
 #include <CF_FRAM.h>
 
-//#define DEBUG_FRAM
+// #define DEBUG_FRAM
 
 
 bool FRAMStore::init(uint8_t addr) {
-	return fram->begin(addr);
-}
+  #ifdef DEBUG_FRAM
+    Serial.println(F("DEBUG_FRAM init()"));
+  #endif
+  return fram->begin(addr);}
 
 void FRAMStore::clear() {
   const uint32_t maxIndex = offsetBytes + sizeBytes;
   #ifdef DEBUG_FRAM
-	Serial.print(F("DEBUG_FRAM *Clear["));
+	Serial.print(F("DEBUG_FRAM clear["));
 	Serial.print(offsetBytes);
  	Serial.print("..");
 	Serial.print(maxIndex-1);
@@ -25,7 +27,7 @@ void FRAMStore::clear() {
 uint8_t FRAMStore::read8(uint32_t idx) {
   const uint8_t val = fram->read8(offsetBytes + idx);
   #if defined DEBUG_FRAM
-    Serial.print(F("DEBUG_FRAM read  ["));
+    Serial.print(F("DEBUG_FRAM read ["));
     Serial.print(offsetBytes + idx);
     Serial.print(F("] -> 0x"));
     Serial.println(val, HEX);
@@ -36,7 +38,7 @@ uint8_t FRAMStore::read8(uint32_t idx) {
 void FRAMStore::write8(uint32_t idx, uint8_t val) {
   fram->write8(offsetBytes + idx, val);
   #ifdef DEBUG_FRAM
-    Serial.print(F("DEBUG_FRAM write ["));
+    Serial.print(F("DEBUG_FRAM write["));
     Serial.print(offsetBytes + idx);
     Serial.print(F("] := 0x"));
     Serial.println(val, HEX);
@@ -48,7 +50,7 @@ bool FRAMStore::update8(uint32_t idx, uint8_t val) {
   if (current == val) return false;
   fram->write8(offsetBytes + idx, val);
   #ifdef DEBUG_FRAM
-    Serial.print(F("DEBUG_FRAM upd   ["));
+    Serial.print(F("DEBUG_FRAM upd  ["));
     Serial.print(offsetBytes + idx);
     Serial.print(F("] := 0x"));
     Serial.println(val, HEX);
