@@ -1,5 +1,5 @@
-#ifndef CF_STORE_H_INCLUDED
-  #define CF_STORE_H_INCLUDED
+#ifndef ACF_STORE_H_INCLUDED
+  #define ACF_STORE_H_INCLUDED
   
   #include <Arduino.h>
   

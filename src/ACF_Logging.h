@@ -1,17 +1,17 @@
-#ifndef CF_LOGGING_H_INCLUDED
-  #define CF_LOGGING_H_INCLUDED
+#ifndef ACF_LOGGING_H_INCLUDED
+  #define ACF_LOGGING_H_INCLUDED
   
-  #include <CF_LogTime.h>
-  #include <CF_Store.h>
+  #include <ACF_LogTime.h>
+  #include <ACF_Store.h>
 
-  // Define this symbol in an including module (prior to #include "CF_Logging.h") to have a different payload size (in Byte):
+  // Define this symbol in an including module (prior to #include "ACF_Logging.h") to have a different payload size (in Byte):
   //
   // Note: Memory alignment can mean that struct fields of 1 byte actually occupy 2, e.g. uint8_t
   #ifndef LOG_DATA_PAYLOAD_SIZE
     #define LOG_DATA_PAYLOAD_SIZE 6
   #endif
 
-  // Define this symbol in an including module (prior to #include "CF_Logging.h") to define the LED pin for issuing fatal S.O.S.:
+  // Define this symbol in an including module (prior to #include "ACF_Logging.h") to define the LED pin for issuing fatal S.O.S.:
   #ifndef SOS_LED_PIN
     #define SOS_LED_PIN LED_BUILTIN
   #endif
@@ -93,7 +93,7 @@
   
 
   /*
-   * Logging is done to a CF_Store::AbstractStore.
+   * Logging is done to a ACF_Store::AbstractStore.
    * 
    * The log structure is as follows:
    * 

@@ -1,7 +1,7 @@
-#ifndef CF_CONFIGURATION_H_INCLUDED
-  #define Cf_CONFIGURATION_H_INCLUDED
+#ifndef ACF_CONFIGURATION_H_INCLUDED
+  #define ACF_CONFIGURATION_H_INCLUDED
 
-  #include <CF_Store.h>
+  #include <ACF_Store.h>
 
   /*
    * The storage structure for configuration parameters is as follows:

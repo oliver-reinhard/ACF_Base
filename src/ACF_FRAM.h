@@ -1,8 +1,8 @@
-#ifndef CF_FRAM_H_INCLUDED
-  #define CF_FRAM_H_INCLUDED
+#ifndef ACF_FRAM_H_INCLUDED
+  #define ACF_FRAM_H_INCLUDED
 
   #include "Adafruit_FRAM_I2C.h"
-  #include <CF_Store.h>
+  #include <ACF_Store.h>
   
   /*
    * A contiguous part of an Arduino's external Adafruit FRAM I2C storage space.<p>

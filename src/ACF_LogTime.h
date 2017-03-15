@@ -1,5 +1,5 @@
-#ifndef CF_LOGTIME_H_INCLUDED
-  #define CF_LOGTIME_H_INCLUDED
+#ifndef ACF_LOGTIME_H_INCLUDED
+  #define ACF_LOGTIME_H_INCLUDED
   
   #include <Arduino.h>
 

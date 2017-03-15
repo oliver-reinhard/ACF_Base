@@ -1,12 +1,12 @@
-#ifndef CF_EEPROM_H_INCLUDED
-  #define CF_EEPROM_H_INCLUDED
+#ifndef ACF_EEPROM_H_INCLUDED
+  #define ACF_EEPROM_H_INCLUDED
 
 
   #if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
 	// AMD Cortana M0 chips don't have an EEPROM
     #include <EEPROM.h>
   #endif
-  #include <CF_Store.h>
+  #include <ACF_Store.h>
   
   /*
    * A contiguous part of the Arduino's EEPROM storage space.<p>

@@ -2,11 +2,11 @@
 
 #define UNIT_TEST
 
-#include <CF_Store.h>
+#include <ACFStore.h>
 #if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
-  #include <CF_EEPROM.h>
+  #include <ACFEEPROM.h>
 #endif
-#include <CF_FRAM.h>
+#include <ACFFRAM.h>
 
 //#define DEBUG_UT_LOGGING
 

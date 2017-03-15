@@ -1,7 +1,7 @@
 // AMD M0 processors don't have an EEPROM:
 #if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
 
-#include <CF_EEPROM.h>
+#include <ACF_EEPROM.h>
   
 //#define DEBUG_EEPROM
   
