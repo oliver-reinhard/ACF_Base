@@ -31,7 +31,7 @@ typedef enum {
 } LogTypeEnum;
 
 struct LogMessageData {
-  MessageID id;
+  T_Message_ID id;
   int16_t   params[2];
 };
 
@@ -45,11 +45,11 @@ class TestLog : public AbstractLog {
   public:
     TestLog(AbstractStore *store) : AbstractLog(store) { }; 
   
-    Timestamp logMessage(MessageID id, int16_t param1, int16_t param2);
+    Timestamp logMessage(T_Message_ID id, int16_t param1, int16_t param2);
     Timestamp logValues(int16_t value);
 };
 
-Timestamp TestLog::logMessage(MessageID id, int16_t param1, int16_t param2) {
+Timestamp TestLog::logMessage(T_Message_ID id, int16_t param1, int16_t param2) {
   LogMessageData data;
   data.id = id;
   data.params[0] = param1;

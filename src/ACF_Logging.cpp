@@ -249,7 +249,7 @@ void blink_S_O_S() {
   }
 }
 
-void AbstractLog::log_S_O_S(MessageID id, int16_t param1, int16_t param2) {
+void AbstractLog::log_S_O_S(T_Message_ID id, int16_t param1, int16_t param2) {
   Timestamp ts = logMessage(id, param1, param2);
   ts = ts; // prevents warning: unused variable
   #ifdef DEBUG_LOG

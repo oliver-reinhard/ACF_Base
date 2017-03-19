@@ -22,10 +22,10 @@
   /*
    *  Storage type for message identifiers.
    */
-  typedef uint8_t MessageID;
+  typedef uint8_t T_Message_ID;
   
   /*
-   * The messages issued by the implementation of this module. Stored as MessageID.
+   * The messages issued by the implementation of this module. Stored as T_Message_ID.
    * Note: the actual message texts and the conversion of message IDs to text have to be implemented by 
    *       the consumer of this libraray 
    */
@@ -144,7 +144,7 @@
        *       the message data structure to the consumers of this library. In its implementation, use addLogEntry() 
 	   *       to create of a new log entry.
        */
-      virtual Timestamp logMessage(MessageID id, int16_t param1, int16_t param2) = 0;
+      virtual Timestamp logMessage(T_Message_ID id, int16_t param1, int16_t param2) = 0;
       
       /*
        * Initialises the LogEntry reader to return at most maxResults of the most recent entries.
@@ -174,7 +174,7 @@
        * Log a message, halt program execution and blink the universal S-O-S code on the Arduino board's LED.
        * Note: The actual LED pin can be configured / changed via symbol definition (SOS_LED_PIN).
        */
-      void log_S_O_S(MessageID id, int16_t param1, int16_t param2);
+      void log_S_O_S(T_Message_ID id, int16_t param1, int16_t param2);
 
     protected:
       /*
