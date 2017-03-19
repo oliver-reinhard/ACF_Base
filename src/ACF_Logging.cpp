@@ -249,14 +249,17 @@ void blink_S_O_S() {
   }
 }
 
-void AbstractLog::log_S_O_S(T_Message_ID id, int16_t param1, int16_t param2) {
+void AbstractLog::log_S_O_S(T_Message_ID id, int16_t param1, int16_t param2, uint16_t line) {
   Timestamp ts = logMessage(id, param1, param2);
   ts = ts; // prevents warning: unused variable
-  #ifdef DEBUG_LOG
-    char buf[MAX_TIMESTAMP_STR_LEN];
-    Serial.print(F("DEBUG_LOG: S.O.S. See log message "));
-    Serial.println(formatTimestamp(ts, buf));
-  #endif
+  char buf[MAX_TIMESTAMP_STR_LEN];
+  Serial.print(F("DEBUG_LOG: S.O.S. See log message "));
+  Serial.print(formatTimestamp(ts, buf));
+  Serial.print(F(", message id "));
+  Serial.print(uint16_t(id));
+  Serial.print(F(", line "));
+  Serial.println(line);
+  //#endif
   blink_S_O_S();
 }
 

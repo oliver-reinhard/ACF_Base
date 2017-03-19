@@ -19,11 +19,12 @@
   #define S_O_S(flashStringHelper) write_S_O_S(flashStringHelper, __LINE__)
   #define ASSERT(cond, msg) ((cond) ? (void)0 : S_O_S(F(msg)))
 
-  /*
-   *  Storage type for message identifiers.
-   */
-  typedef uint8_t T_Message_ID;
-  
+  /* Storage type for message identifiers.  */
+  typedef uint16_t T_Message_ID;
+
+  /* Storage type for message parameters. */
+  typedef int16_t T_Message_Param;
+
   /*
    * The messages issued by the implementation of this module. Stored as T_Message_ID.
    * Note: the actual message texts and the conversion of message IDs to text have to be implemented by 
@@ -144,7 +145,7 @@
        *       the message data structure to the consumers of this library. In its implementation, use addLogEntry() 
 	   *       to create of a new log entry.
        */
-      virtual Timestamp logMessage(T_Message_ID id, int16_t param1, int16_t param2) = 0;
+      virtual Timestamp logMessage(T_Message_ID id, T_Message_Param param1, T_Message_Param param2) = 0;
       
       /*
        * Initialises the LogEntry reader to return at most maxResults of the most recent entries.
@@ -173,8 +174,9 @@
       /*
        * Log a message, halt program execution and blink the universal S-O-S code on the Arduino board's LED.
        * Note: The actual LED pin can be configured / changed via symbol definition (SOS_LED_PIN).
+       * @param line usually pass the source-code line number pseudo variable "__LINE__"
        */
-      void log_S_O_S(T_Message_ID id, int16_t param1, int16_t param2);
+      void log_S_O_S(T_Message_ID id, T_Message_Param param1, T_Message_Param param2, uint16_t line);
 
     protected:
       /*

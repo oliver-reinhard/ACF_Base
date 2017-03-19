@@ -137,9 +137,14 @@ EventSet AbstractStateAutomaton::evaluate(const Event userRequest) {
 void AbstractStateAutomaton::transition(const Event event) {
   #ifdef DEBUG_STATE
     Serial.print(F("DEBUG_STATE: State "));
+    Serial.print(currentState->id().name());
+    Serial.print(F(" ("));
     Serial.print(currentState->id().id());
-    Serial.print(F(": process event 0x"));
+    Serial.print(F("): process event "));
+    Serial.print(event.name());
+    Serial.print(F(" ("));
     Serial.println(event.id(), HEX);
+    Serial.println(')');
   #endif
   StateID oldStateID = currentState->id();
   StateID newStateID = currentState->trans(event);
@@ -185,7 +190,7 @@ AbstractState *AbstractStateAutomaton::state(const StateID id) {
       return states[i];
     }
   }
-  log->log_S_O_S(static_cast<uint8_t>(StateMessageEnum::MSG_UNKNOWN_STATE), id.id(), 0);  // function NEVER RETURNS
+  log->log_S_O_S(static_cast<uint8_t>(StateMessageEnum::MSG_UNKNOWN_STATE), id.id(), 0, __LINE__);  // function NEVER RETURNS
   abort();
 }
 

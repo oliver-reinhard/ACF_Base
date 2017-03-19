@@ -35,10 +35,14 @@ struct LogMessageData {
   int16_t   params[2];
 };
 
+static_assert(sizeof(LogMessageData) <= sizeof(LogData), "LogMessageData > LogData");
+
 struct LogValuesData {
   int16_t value;
   byte    filler[3];
 };
+
+static_assert(sizeof(LogValuesData) <= sizeof(LogData), "LogValuesData > LogData");
 
 
 class TestLog : public AbstractLog {
@@ -51,6 +55,7 @@ class TestLog : public AbstractLog {
 
 Timestamp TestLog::logMessage(T_Message_ID id, int16_t param1, int16_t param2) {
   LogMessageData data;
+  memset(&data, 0x0, sizeof(data));
   data.id = id;
   data.params[0] = param1;
   data.params[1] = param2;
@@ -60,6 +65,7 @@ Timestamp TestLog::logMessage(T_Message_ID id, int16_t param1, int16_t param2) {
 
 Timestamp TestLog::logValues(int16_t value) {
   LogValuesData data;
+  memset(&data, 0x0, sizeof(data));
   data.value = value;
   LogEntry e = addLogEntry(LOG_TYPE_VALUES, (LogData *) &data);
   return e.timestamp;
