@@ -14,9 +14,12 @@ EventSet AbstractState::acceptedUserEvents() {
   }
 }
 
-EventSet AbstractState::eval() {
-  // override this to add more non-user-triggered events:
-  return acceptedUserEvents();
+EventSet AbstractState::eval(const Event userRequest) {
+  // override this method to also support non-user-triggered events:
+  if (acceptedUserEvents() & userRequest) {
+    return userRequest;
+  }
+  return EVENT_SET_NONE;
 }
 
 StateID AbstractState::transAction(Event) {
@@ -120,8 +123,8 @@ EventSet AbstractStateAutomaton::acceptedUserEvents() {
   return currentState->acceptedUserEvents();
 }
   
-EventSet AbstractStateAutomaton::evaluate() {
-  EventSet candidates = currentState->eval();
+EventSet AbstractStateAutomaton::evaluate(const Event userRequest) {
+  EventSet candidates = currentState->eval(userRequest);
   #ifdef DEBUG_STATE
     Serial.print(F("DEBUG_STATE: eval in state "));
     Serial.print(currentState->id().id());
@@ -131,7 +134,7 @@ EventSet AbstractStateAutomaton::evaluate() {
   return candidates;
 }
 
-void AbstractStateAutomaton::transition(Event event) {
+void AbstractStateAutomaton::transition(const Event event) {
   #ifdef DEBUG_STATE
     Serial.print(F("DEBUG_STATE: State "));
     Serial.print(currentState->id().id());
@@ -176,7 +179,7 @@ void AbstractStateAutomaton::transition(Event event) {
   }
 }
 
-AbstractState *AbstractStateAutomaton::state(StateID id) {
+AbstractState *AbstractStateAutomaton::state(const StateID id) {
   for(uint8_t i=0; i<numStates; i++) {
     if (states[i]->id() == id) {
       return states[i];
@@ -186,6 +189,6 @@ AbstractState *AbstractStateAutomaton::state(StateID id) {
   abort();
 }
 
-void AbstractStateAutomaton::stateChanged(StateID, Event, StateID) {
+void AbstractStateAutomaton::stateChanged(const StateID, const Event, const StateID) {
   // do nothing
 }

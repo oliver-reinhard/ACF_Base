@@ -150,56 +150,63 @@
        */
       AbstractState() { }
 
-      /* The ID of the state. */
+      /* @return ID of the state. */
       virtual StateID id() = 0;
 
       /*
        * Calculates and returns the set of user-initiated events supported by the current state at the time of invocation of this method.
        * 
        * The default implementation invokes the containing state's acceptedUserEvents() method first, then adds its own events to the result.
+       *
+       * Override this method to support (i.e. return) user-initiated events.
        * 
-       * Returns EVENT_SET_NONE if there should be no user-triggered events available at the time.
+       * @return EVENT_SET_NONE if there should be no user-triggered events available at the time.
        */
       virtual EventSet acceptedUserEvents();
-
-      /*
-       * Enters a state by invoking its entryAction() method, then triggers the enter() method of its initial substate (if any).
-       * Note 1: Enter methods are always invoked *down* the containment chain, i.e. containing state first, then its substates until a simple state is reached.
-       * Note 2: You would normally override entryAction() rather than enter().
-       * Note 3: This method is typically invoked by the containing state automaton, not by the programmer.
-       * 
-       * Returns the actual new state, which is always a simple state; if "this" is a composite state, then the new state is its initial substate and so on.
-       */
-      virtual StateID enter() = 0;
       
       /*
-       * Checks every event condition and returns those events ready for transitioning at the time of invocation of this method.<p> 
-       * Note 1: this method takes into consideration all user-initiated transitions as well as automaton-triggered ("automatic") transitions. 
-       *         If there are no automatic transitions, then the semantics of eval() are the same as acceptedUserEvents(). 
-       * Note 2: this method does not actually perform a transition, it merely calculates the options for transitioning. It is  left to the caller
+       * Evaluates which event should be the next to trigger a transition (see trans(event)).
+       *
+       * If a user-triggered event is provided, then it will be matched against the acceptedUserEvents() at this time. The method also
+       * checks all the event conditions for automaton-triggered ("automatic") transitions (non-user-triggered) and it may favour the
+       * user request over automatic transitions or vice versa.
+       * If no user-triggered event is provided, only automatic transitions are considered. However, the default implementation does
+       * not check for any automatic transitions.
+       *
+       * Note : this method does not actually perform a transition, it merely calculates the options for transitioning. It is  left to the caller
        * to pick the event with the highest priority by his own definition and trigger the transition.
+       *
+       * Override this method to consider automatic (i.e. non-user triggered) events.
        * 
-       * The default implementation invokes the containing state's eval() method first, then adds its own evaluation to the result.
-       * 
-       * Returns EVENT_SET_NONE if there should not be a state change.
+       * @param  userRequest optional. If a userRequest is passed then it will be matched against currently available user-triggered events.
+       * @return EVENT_SET_NONE if there should not be a state change.
        */
-      virtual EventSet eval();
-      
+      virtual EventSet eval(const Event userRequest = EVENT_NONE);
+    
       /*
        * Handels the event and executes the transistion. If this state can't handle the event it delegates to the containing state's trans() method.
        * Handling the event consists of invoking its transAction() method (which may execute commands and computes the next state).
        * Note: this method stays at the same state or transitions *out* of it but does *not yet enter* the next state.
        * 
-       * Returns STATE_UNDEFINED if event wasn't handled, returns id() or STATE_SAME if current state does not change
+       * @return STATE_UNDEFINED if event wasn't handled, returns id() or STATE_SAME if current state does not change
        */
-      virtual StateID trans(const Event event) = 0;
-     
+    virtual StateID trans(const Event event) = 0;
+    
+      /*
+       * Enters a state by invoking its entryAction() method, then triggers the enter() method of its initial substate (if any).
+       * Note 1: Enter methods are always invoked *down* the containment chain, i.e. containing state first, then its substates until a simple state is reached.
+       * Note 2: You would normally override entryAction() rather than enter().
+       * Note 3: This method is typically invoked by the containing state automaton, not by the programmer.
+       *
+       * @return the actual new state, which is always a simple state; if "this" is a composite state, then the new state is its initial substate and so on.
+       */
+      virtual StateID enter() = 0;
+    
       /*
        * Performes the exit tasks of "this", then invokes the containing state's exit method.
        * Note 1: exit methods are always invoked *up* the containment chain, i.e. simple state first, then its containing state(s).
        * Note 2: You would normally override exitAction() rather than exit().
        * Note 3: This method is typically invoked by the containing state itself or by the state automaton, not by the programmer.
-       * 
        */
       virtual void exit(const Event event, const StateID next) = 0;
   
@@ -208,7 +215,7 @@
       /*
        * Executes the transition actions for this event (if any), calculates and returns the next state.
        * 
-       * Returns STATE_UNDEFINED if event couldn't be handled at this level.
+       * @return STATE_UNDEFINED if event couldn't be handled at this level.
        */
       virtual StateID transAction(const Event event);
 
@@ -291,13 +298,13 @@
     
       
       /* Returns the result of eval() of the current state. */
-      virtual EventSet evaluate();
+      virtual EventSet evaluate(const Event userRequest = EVENT_NONE);
     
       /*
        * Execute trans(event) on the current state and enters the new state, if there is a transition to a new state at all.
        * Note: executes all entry, exit and transition actions as defined and appropriate.
        */
-      virtual void transition(Event event);
+      virtual void transition(const Event event);
     
     protected:
       AbstractState **states;
@@ -306,9 +313,9 @@
       AbstractLog *log = NULL;
 
       /* Maps ids to real states. */
-      virtual AbstractState *state(StateID id);
+      virtual AbstractState *state(const StateID id);
 
       /* Override: use for logging, time-tracking, notifications, etc. */
-      virtual void stateChanged(StateID fromState, Event event, StateID toState);
+      virtual void stateChanged(const StateID fromState, const Event event, const StateID toState);
   };
 #endif
