@@ -86,18 +86,22 @@ test(d_states_events) {
   AbstractState *B_SUBSTATES[2] = {&c, &d};
   b.setSubstates(B_SUBSTATES, 2);
 
+  const TimeMillis TIME_IN_STATE = 100L;
+
   // Check accepted events:
   EventSet aes = a.acceptedUserEvents();
   assertEqual(aes.events(), EVENT_A_B.id());
-  aes = a.eval(EVENT_A_B);
+  aes = a.eval(TIME_IN_STATE , EVENT_A_B);
   assertEqual(aes.events(), EVENT_A_B.id());
   
   EventSet bes = b.acceptedUserEvents();
   assertEqual(bes.events(), EVENT_B_A.id());
   
   EventSet ces = c.acceptedUserEvents();
-  assertEqual(ces.events(), EVENT_B_A.id() | EVENT_C_C.id() | EVENT_C_D.id());
-  ces = c.eval(EVENT_C_C);
+  assertEqual(ces.events(), EVENT_B_A.id() | EVENT_C_D.id());
+  ces = c.eval(TIME_IN_STATE,  EVENT_NONE);
+  assertEqual(ces.events(), EVENT_NONE.id());
+  ces = c.eval(C_C_TIMEOUT + TIME_IN_STATE,  EVENT_NONE);
   assertEqual(ces.events(), EVENT_C_C.id());
   
   EventSet des = d.acceptedUserEvents();

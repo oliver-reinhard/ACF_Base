@@ -77,7 +77,8 @@
   // o--> Initial state
   // ta = transition action
   // *  = semantics of this transition are that every stated contained by B implicitly includes this transition option
-  
+  // Note: the transition C-->C is timeout-triggered rather than user-triggered
+
   static const StateID STATE_A = StateID(1);
   static const StateID STATE_B = StateID(2);
   static const StateID STATE_C = StateID(3);
@@ -88,10 +89,12 @@
   
   static const Event EVENT_A_B = Event(0x1);
   static const Event EVENT_B_A = Event(0x2);
-  static const Event EVENT_C_C = Event(0x4);
+  static const Event EVENT_C_C = Event(0x4); // not a user-triggerable event (timout-triggered)
   static const Event EVENT_C_D = Event(0x8);
   static const Event EVENT_D_E = Event(0x10);
-  
+
+  static const TimeMillis C_C_TIMEOUT = 2000L;
+
   class StateA : public AbstractSimpleState, public ContextAware {
     public:
       StateID id() { return STATE_A; }
@@ -118,11 +121,21 @@
       void entryAction() { context->entryB++; }
       void exitAction()  { context->exitB++; }
   };
-  
+
+
   class StateC : public AbstractSimpleState, public ContextAware {
     public:
       StateID id() { return STATE_C; }
-      EventSet acceptedUserEvents() { return AbstractState::acceptedUserEvents() | EVENT_C_C | EVENT_C_D; }
+      EventSet acceptedUserEvents() { return AbstractState::acceptedUserEvents() | EVENT_C_D; }
+    
+      EventSet eval(const TimeMillis timeInState, const Event userRequest = EVENT_NONE) {
+        EventSet result = AbstractState::eval(timeInState, userRequest); // handles user-requested events
+        if (timeInState >= C_C_TIMEOUT) {
+          result |= EVENT_C_C;
+        }
+        return result;
+      }
+
       StateID transAction(const Event event) {
         if (event == EVENT_C_C) {
           context->trans_C_C();  // example of a transition action
@@ -131,6 +144,7 @@
         if (event == EVENT_C_D) { return STATE_D; }
         return AbstractState::transAction(event);
       }
+    
       void entryAction() { context->entryC++; }
       void exitAction()  { context->exitC++; }
   };
@@ -171,7 +185,7 @@
   
    public:
       void init(MockExecutionContext *context) {
-        setStates(ALL_STATES, NUM_STATES);
+        setStates(ALL_STATES, NUM_STATES, &a);
         // no log set
         
         setContext(context);

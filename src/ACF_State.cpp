@@ -14,8 +14,10 @@ EventSet AbstractState::acceptedUserEvents() {
   }
 }
 
-EventSet AbstractState::eval(const Event userRequest) {
-  // override this method to also support non-user-triggered events:
+EventSet AbstractState::eval(const TimeMillis /*timeInState*/, const Event userRequest) {
+  // override this method to also support non-user-triggered events like
+  //  - timeout events,
+  //  - sensor-value-dependent events:
   if (acceptedUserEvents() & userRequest) {
     return userRequest;
   }
@@ -67,15 +69,12 @@ void AbstractSimpleState::exit(const Event event, const StateID next) {
  */
 void AbstractCompositeState::setSubstates(AbstractState **substates, uint8_t numSubstates) {
   this->substates = substates;
+  ASSERT(numSubstates > 0, "numSubstates");
   this->numSubstates = numSubstates;
   // set containingStates of the subtates to "this":
   for(uint16_t i=0; i< this->numSubstates; i++) {
     this->substates[i]->containingState = this;
   }
-}
-
-AbstractState *AbstractCompositeState::initialSubstate() {
-  return substates[0];
 }
       
 StateID AbstractCompositeState::enter() {
@@ -111,12 +110,16 @@ void AbstractCompositeState::exit(const Event event, const StateID next) {
  * STATE AUTOMATON
  */
  
-void AbstractStateAutomaton::setStates(AbstractState **states, uint8_t numStates) {
+void AbstractStateAutomaton::setStates(AbstractState **states, uint8_t numStates, AbstractState *initial) {
   this->states = states;
+  ASSERT(numStates > 0, "numStates");
   this->numStates = numStates;
-  if (numStates > 0) {
+  if (initial == NULL) {
     currentState = states[0];
+  } else {
+    currentState = initial;
   }
+  currentStateStartMillis = millis();
 }
 
 EventSet AbstractStateAutomaton::acceptedUserEvents() {
@@ -124,7 +127,7 @@ EventSet AbstractStateAutomaton::acceptedUserEvents() {
 }
   
 EventSet AbstractStateAutomaton::evaluate(const Event userRequest) {
-  EventSet candidates = currentState->eval(userRequest);
+  EventSet candidates = currentState->eval(inStateMillis(), userRequest);
   #ifdef DEBUG_STATE
     Serial.print(F("DEBUG_STATE: eval in state "));
     Serial.print(currentState->id().id());
@@ -169,6 +172,7 @@ void AbstractStateAutomaton::transition(const Event event) {
     // Enter the new state (which can be a composite state but will always end up in a simple state):
     newStateID = currentState->enter();
     currentState = state(newStateID);
+    currentStateStartMillis = millis();
     
     stateChanged(oldStateID, event, newStateID);
     

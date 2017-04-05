@@ -2,6 +2,7 @@
   #define ACF_STATE_H_INCLUDED
 
   #include <Arduino.h>
+  #include <ACF_Types.h>
   #include <ACF_Logging.h>
 
   /* Base type for state serialisation. */
@@ -19,28 +20,28 @@
   class StateID {
     public:
 	  
-	  /*
-	   * Constructor.
-	   *
-	   * @param id unique identifier. Negative values are reserved by framework.
-	   * @param name optional (pass NULL).
-	   */
-	  StateID(const T_State_ID id, const char *name) {
-	    this->value = id;
-	    this->str = name;
-	  }
-	  
-	  StateID(const T_State_ID id) : StateID(id, NULL) {}
-	  
-	  T_State_ID id() const { return value; }
-	  const char *name() const { return (str == NULL) ? UNNAMED : str; }
+      /*
+       * Constructor.
+       *
+       * @param id unique identifier. Negative values are reserved by framework.
+       * @param name optional (pass NULL).
+       */
+      StateID(const T_State_ID id, const char *name) {
+        this->value = id;
+        this->str = name;
+      }
+      
+      StateID(const T_State_ID id) : StateID(id, NULL) {}
+      
+      T_State_ID id() const { return value; }
+      const char *name() const { return (str == NULL) ? UNNAMED : str; }
 	  
       bool operator ==(const StateID other) const { return value == other.value; }
       bool operator !=(const StateID other) const { return value != other.value; }
       
     protected:
       T_State_ID value;
-	  const char *str;
+      const char *str;
   };
 
   /* Pseudo state: used to identify illegal transition events. */
@@ -178,10 +179,11 @@
        *
        * Override this method to consider automatic (i.e. non-user triggered) events.
        * 
+       * @param  timeInState time [ms] spent so far in this state; use to trigger timeout events
        * @param  userRequest optional. If a userRequest is passed then it will be matched against currently available user-triggered events.
        * @return EVENT_SET_NONE if there should not be a state change.
        */
-      virtual EventSet eval(const Event userRequest = EVENT_NONE);
+      virtual EventSet eval(const TimeMillis timeInState, const Event userRequest = EVENT_NONE);
     
       /*
        * Handels the event and executes the transistion. If this state can't handle the event it delegates to the containing state's trans() method.
@@ -190,7 +192,7 @@
        * 
        * @return STATE_UNDEFINED if event wasn't handled, returns id() or STATE_SAME if current state does not change
        */
-    virtual StateID trans(const Event event) = 0;
+      virtual StateID trans(const Event event) = 0;
     
       /*
        * Enters a state by invoking its entryAction() method, then triggers the enter() method of its initial substate (if any).
@@ -250,11 +252,17 @@
   class AbstractCompositeState : public AbstractState {
     public:
       AbstractCompositeState()  : AbstractState() { }
-      
+    
+      /*
+       * @param substates an array of size numSubstates. The first element is the initial substate.
+       * @param numSubstates must be > 0
+       */
       void setSubstates(AbstractState **substates, uint8_t numSubstates);
-      
-      AbstractState *initialSubstate();
-      
+    
+      /* Only invoke after invocation of setSubstates(). */
+      AbstractState *initialSubstate() { return substates[0]; }
+    
+      /* Override. */
       virtual StateID enter();
       
       /* Does not invoke the exit action (exits are triggered by simple states and are then performed "up" the containment hiearchy). */
@@ -286,9 +294,21 @@
       
       /* Returns the current state. */
       AbstractState *state() { return currentState; }
+    
+      /* Returns the timepoint ([ms] as returned by millis()) when the automaton transitioned to the current state. */
+      TimeMillis stateStartMillis() { return currentStateStartMillis; }
+    
+    
+      /* Returns the time [ms] spent so far at the current state. */
+      TimeMillis inStateMillis() { return millis() - currentStateStartMillis; }
 
-      /* Adds the states to the automaton. */
-      virtual void setStates(AbstractState **states, uint8_t numStates);
+      /*
+       * Adds the states to the automaton.
+       * @param states an array of size numStates
+       * @param numStates must be > 0
+       * @param initial defines the initial state of the automaton. If NULL is passed, then the first element of passed states becomes the initial state.
+       */
+      virtual void setStates(AbstractState **states, uint8_t numStates, AbstractState *initial = NULL);
 
       /* Optional invocation. Automaton can handle NULL log. */
       void setLog(AbstractLog *log) { this->log = log; }
@@ -310,6 +330,8 @@
       AbstractState **states;
       uint8_t numStates;
       AbstractState *currentState;
+      /* Timepoint [ms] of most recent transition to current state.  */
+      TimeMillis currentStateStartMillis = 0L;
       AbstractLog *log = NULL;
 
       /* Maps ids to real states. */
