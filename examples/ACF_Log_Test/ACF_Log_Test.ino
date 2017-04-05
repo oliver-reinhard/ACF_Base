@@ -25,10 +25,10 @@ void loop() {
 #define UNIT_TEST_LOG_ENTRIES 5  // numer of LogEntry slots
 #define STORE_SIZE (sizeof(uint8_t) + sizeof(uint16_t) + UNIT_TEST_LOG_ENTRIES * sizeof(LogEntry))  // uint16_t = number of logEntries
 
-typedef enum {
-  LOG_TYPE_MESSAGE = 0,
-  LOG_TYPE_VALUES = 1
-} LogTypeEnum;
+enum class LogDataType : T_LogDataType_ID {
+  MESSAGE = 0,
+  VALUES = 1
+};
 
 struct LogMessageData {
   T_Message_ID id;
@@ -59,7 +59,7 @@ Timestamp TestLog::logMessage(T_Message_ID id, int16_t param1, int16_t param2) {
   data.id = id;
   data.params[0] = param1;
   data.params[1] = param2;
-  LogEntry e = addLogEntry(LOG_TYPE_MESSAGE, (LogData *) &data);
+  LogEntry e = addLogEntry(static_cast<T_LogDataType_ID>(LogDataType::MESSAGE), (LogData *) &data);
   return e.timestamp;
 }
 
@@ -67,7 +67,7 @@ Timestamp TestLog::logValues(int16_t value) {
   LogValuesData data;
   memset(&data, 0x0, sizeof(data));
   data.value = value;
-  LogEntry e = addLogEntry(LOG_TYPE_VALUES, (LogData *) &data);
+  LogEntry e = addLogEntry(static_cast<T_LogDataType_ID>(LogDataType::VALUES), (LogData *) &data);
   return e.timestamp;
 }
 
@@ -190,13 +190,13 @@ test(d_log_reader_unnotified) {
   LogEntry e;
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_MESSAGE));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::MESSAGE)));
   LogMessageData lmd;
   memcpy(&lmd, &(e.data), sizeof(LogMessageData));
   assertEqual(lmd.id, 1); // MSG_LOG_INIT
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd1;
   memcpy(&lvd1, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd1.value, 3000);
@@ -207,13 +207,13 @@ test(d_log_reader_unnotified) {
   assertEqual(logging.reader.toRead, 2);
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd2;
   memcpy(&lvd2, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd2.value, 3100);
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd3;
   memcpy(&lvd3, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd3.value, 3200);
@@ -233,25 +233,25 @@ test(e_log_reader_most_recent) {
   LogEntry e;
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd1;
   memcpy(&lvd1, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd1.value, 3200);
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd2;
   memcpy(&lvd2, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd2.value, 3100);
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_VALUES));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::VALUES)));
   LogValuesData lvd3;
   memcpy(&lvd3, &(e.data), sizeof(LogValuesData));
   assertEqual(lvd3.value, 3000);
   //
   assertTrue(logging.nextLogEntry(e));
-  assertEqual(int(e.type), int(LOG_TYPE_MESSAGE));
+  assertEqual(int(e.type), int(static_cast<T_LogDataType_ID>(LogDataType::MESSAGE)));
   LogMessageData lmd;
   memcpy(&lmd, &(e.data), sizeof(LogMessageData));
   assertEqual(lmd.id, 1); // MSG_LOG_INIT

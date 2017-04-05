@@ -1,4 +1,5 @@
 #include <ACF_Logging.h>
+#include <ACF_Messages.h>
 
 // #define DEBUG_LOG
 
@@ -54,7 +55,7 @@ void AbstractLog::clear() {
   logHeadIndex = 0;
   logTailIndex = 0;
   // write a log message so there is always at least one log entry:
-  logMessage(MSG_LOG_INIT, 0, 0);
+  logMessage(static_cast<T_Message_ID>(ACF_Msg::LOG_INIT), 0, 0);
   lastNotifiedLogEntryIndex = logEntrySlots - 1; // = the one before the current entry at index 0
 }
 
@@ -74,9 +75,9 @@ void AbstractLog::init() {
   if (wrongMagicNumber || logEntriesChanged) {
     clear();
     if (wrongMagicNumber) {
-      logMessage(MSG_LOG_MAGIC_NUMBER, 0, 0);
+      logMessage(static_cast<T_Message_ID>(ACF_Msg::LOG_MAGIC_NUMBER), 0, 0);
 	} else {
-	  logMessage(MSG_LOG_SIZE_CHG, oldMaxLogEntries, logEntrySlots);
+	  logMessage(static_cast<T_Message_ID>(ACF_Msg::LOG_SIZE_CHG), oldMaxLogEntries, logEntrySlots);
 	}
     return;
   }
@@ -140,7 +141,7 @@ void AbstractLog::clearLogEntry(uint16_t index) {
 /*
  * Generic log-entry creation.
  */
-LogEntry AbstractLog::addLogEntry(LogDataTypeID type, LogData *data) {
+LogEntry AbstractLog::addLogEntry(T_LogDataType_ID type, LogData *data) {
   LogEntry entry;
   entry.timestamp = logTime.timestamp();
   entry.type = type;
@@ -169,7 +170,7 @@ LogEntry AbstractLog::addLogEntry(LogDataTypeID type, LogData *data) {
 }
 
 void AbstractLog::readMostRecentLogEntries(uint16_t maxResults) {
-  reader.kind = LOG_READER_MOST_RECENT;
+  reader.kind = LogReaderKind::MOST_RECENT;
   uint16_t n = currentLogEntries();
   if (maxResults == 0) {
       reader.toRead = n;
@@ -187,7 +188,7 @@ void AbstractLog::readMostRecentLogEntries(uint16_t maxResults) {
 
 
 void AbstractLog::readUnnotifiedLogEntries() {
-  reader.kind = LOG_READER_UNNOTIFIED;
+  reader.kind = LogReaderKind::UNNOTIFIED;
   if (logHeadIndex > lastNotifiedLogEntryIndex) {
     reader.toRead = logHeadIndex - lastNotifiedLogEntryIndex - 1;
   } else {
@@ -214,10 +215,10 @@ boolean AbstractLog::nextLogEntry(LogEntry &entry) {
       Serial.println(entry.type);
     #endif
     reader.read++;
-    if (reader.kind == LOG_READER_MOST_RECENT) {
+    if (reader.kind == LogReaderKind::MOST_RECENT) {
       reader.nextIndex = (reader.nextIndex - 1) % logEntrySlots;
       
-    } else if (reader.kind == LOG_READER_UNNOTIFIED) {
+    } else if (reader.kind == LogReaderKind::UNNOTIFIED) {
       lastNotifiedLogEntryIndex = reader.nextIndex;
       reader.nextIndex = (reader.nextIndex + 1) % logEntrySlots;
     }

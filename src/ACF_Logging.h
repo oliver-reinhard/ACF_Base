@@ -1,6 +1,7 @@
 #ifndef ACF_LOGGING_H_INCLUDED
   #define ACF_LOGGING_H_INCLUDED
-  
+
+  #include <ACF_Types.h>
   #include <ACF_LogTime.h>
   #include <ACF_Store.h>
 
@@ -19,26 +20,9 @@
   #define S_O_S(flashStringHelper) write_S_O_S(flashStringHelper, __LINE__)
   #define ASSERT(cond, msg) ((cond) ? (void)0 : S_O_S(F(msg)))
 
-  /* Storage type for message identifiers.  */
-  typedef uint16_t T_Message_ID;
-
-  /* Storage type for message parameters. */
-  typedef int16_t T_Message_Param;
-
-  /*
-   * The messages issued by the implementation of this module. Stored as T_Message_ID.
-   * Note: the actual message texts and the conversion of message IDs to text have to be implemented by 
-   *       the consumer of this libraray 
-   */
-  typedef enum {
-    MSG_SYSTEM_INIT = 0,      // The board is initialising from reset or power on [no parameters]
-    MSG_LOG_INIT = 1,         // Log initialised [no parameters]
-    MSG_LOG_MAGIC_NUMBER = 2, // Log was cleared because magic number was not detected ->
-    MSG_LOG_SIZE_CHG = 3,     // Log was cleared because number of log entries has changed from [old] to [new])
-  } AbstractLogMessageEnum;
   
   /**
-   * Generic "supertype" for log data; "subtypes" are distinguished via LogDataTypeID.
+   * Generic "supertype" for log data; "subtypes" are distinguished via T_LogDataType_ID.
    * Note: The actual payload size can be configured / changed via symbol definition (LOG_DATA_PAYLOAD_SIZE).
    */
   struct LogData {
@@ -48,22 +32,22 @@
   /*
    * Discriminator for various types of log data.
    */
-  typedef uint8_t LogDataTypeID;
+  typedef uint8_t T_LogDataType_ID;
   
   /**
    * Actual log record. At runtime the data field is an instance of a "subtype" of LogData.
    */
   struct LogEntry {
     Timestamp timestamp;
-    LogDataTypeID type;
+    T_LogDataType_ID type;
     LogData   data; // generic
   };
 
     
-  typedef enum {
-    LOG_READER_MOST_RECENT = 0,  // reads newer to older
-    LOG_READER_UNNOTIFIED = 1    // reads older to newer
-  } LogReaderKindEnum;
+  enum class LogReaderKind {
+    MOST_RECENT = 0,  // reads newer to older
+    UNNOTIFIED = 1    // reads older to newer
+  };
 
 
   /*
@@ -73,7 +57,7 @@
     /*
      * Determines reader behaviour.
      */
-    LogReaderKindEnum kind;
+    LogReaderKind kind;
     /*
      * The values in this struct are defined only if valid == true.
      */
@@ -232,7 +216,7 @@
       /**
        * Creates and adds a log entry at the current logHead position, clears the next entry and updates logHead and logTail.
        */ 
-      LogEntry addLogEntry(LogDataTypeID type, LogData *data);
+      LogEntry addLogEntry(T_LogDataType_ID type, LogData *data);
   };
   
       

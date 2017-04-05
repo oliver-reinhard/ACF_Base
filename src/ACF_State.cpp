@@ -1,4 +1,5 @@
-#include "ACF_State.h"
+#include <ACF_State.h>
+#include <ACF_Messages.h>
 
 // #define DEBUG_STATE
 
@@ -161,7 +162,7 @@ void AbstractStateAutomaton::transition(const Event event) {
       #endif
 
       if (log != NULL) {
-        log->logMessage(static_cast<uint8_t>(StateMessageEnum::MSG_ILLEGAL_TRANS), currentState->id().id(), event.id());
+        log->logMessage(static_cast<T_Message_ID>(ACF_Msg::STATE_ILLEGAL_TRANS), currentState->id().id(), event.id());
       }
       currentState->illegalTransitionLogged |= event;
     }
@@ -194,7 +195,7 @@ AbstractState *AbstractStateAutomaton::state(const StateID id) {
       return states[i];
     }
   }
-  log->log_S_O_S(static_cast<uint8_t>(StateMessageEnum::MSG_UNKNOWN_STATE), id.id(), 0, __LINE__);  // function NEVER RETURNS
+  log->log_S_O_S(static_cast<uint8_t>(ACF_Msg::STATE_UNKNOWN_STATE), id.id(), 0, __LINE__);  // function NEVER RETURNS
   abort();
 }
 

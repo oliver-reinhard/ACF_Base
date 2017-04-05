@@ -277,14 +277,7 @@
       virtual void exit(const Event event, const StateID next);
          
   };
-  
-  /*
-   * IDs for log messages posted by AbstractStateAutomaton.
-   */
-  enum class StateMessageEnum : uint8_t {
-    MSG_ILLEGAL_TRANS = 30,   // State [state]: illegal transition attemt (event [event])
-    MSG_UNKNOWN_STATE = 31    // State [state] has not been defined
-  };
+
   
   /*
    * STATE AUTOMATON

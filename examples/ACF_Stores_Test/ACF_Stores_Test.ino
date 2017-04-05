@@ -2,11 +2,11 @@
 
 #define UNIT_TEST
 
-#include <ACFStore.h>
+#include <ACF_Store.h>
 #if not defined(ARDUINO_SAMD_ZERO) && not defined(ARDUINO_SAMD_MKR1000)
-  #include <ACFEEPROM.h>
+  #include <ACF_EEPROM.h>
 #endif
-#include <ACFFRAM.h>
+#include <ACF_FRAM.h>
 
 //#define DEBUG_UT_LOGGING
 
@@ -48,7 +48,7 @@ test(a_RAM) {
 
 test(b_EEPROM) {
   #if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000)
-    Serial.println(F("SAMD M0 board does not feature EEPROM"));
+    Serial.println(F("SAMD M0 board does not feature EEPROM -> fail"));
     fail();
   #else
     EEPROMStore store = EEPROMStore(STORE_OFFSET, STORE_SIZE);
