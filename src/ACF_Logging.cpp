@@ -192,7 +192,7 @@ void AbstractLog::readUnnotifiedLogEntries() {
   if (logHeadIndex > lastNotifiedLogEntryIndex) {
     reader.toRead = logHeadIndex - lastNotifiedLogEntryIndex - 1;
   } else {
-    reader.toRead = logEntrySlots - (lastNotifiedLogEntryIndex - logHeadIndex) - 1;
+    reader.toRead = logEntrySlots - (lastNotifiedLogEntryIndex - logHeadIndex) - 1; // (logHeadIndex -1) can be negative => % function returns 0 ... !! => ensure always >= 0
   }
   reader.read = 0;
   reader.nextIndex = (lastNotifiedLogEntryIndex + 1) % logEntrySlots;
@@ -216,7 +216,7 @@ boolean AbstractLog::nextLogEntry(LogEntry &entry) {
     #endif
     reader.read++;
     if (reader.kind == LogReaderKind::MOST_RECENT) {
-      reader.nextIndex = (reader.nextIndex - 1) % logEntrySlots;
+      reader.nextIndex = (logEntrySlots + reader.nextIndex - 1) % logEntrySlots; // (logHeadIndex -1) can be negative => % function returns 0 ... !! => ensure always >= 0
       
     } else if (reader.kind == LogReaderKind::UNNOTIFIED) {
       lastNotifiedLogEntryIndex = reader.nextIndex;

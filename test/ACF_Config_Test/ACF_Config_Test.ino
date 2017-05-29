@@ -1,5 +1,5 @@
 
-#include <ArduinoUnitX.h>
+#include <ArduinoUnit.h>
 
 #define UNIT_TEST
 
@@ -9,7 +9,7 @@
 #define DEBUG_UT_CONFIG
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect.
   }

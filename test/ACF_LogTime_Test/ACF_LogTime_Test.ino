@@ -1,4 +1,4 @@
-#include <ArduinoUnitX.h>
+#include <ArduinoUnit.h>
 
 #define UNIT_TEST
 #include <ACF_LogTime.h>
@@ -6,7 +6,7 @@
 //#define DEBUG_UT_LOGTIME
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect.
   }

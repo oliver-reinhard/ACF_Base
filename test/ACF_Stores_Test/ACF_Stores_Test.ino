@@ -1,4 +1,4 @@
-#include <ArduinoUnitX.h>
+#include <ArduinoUnit.h>
 
 #define UNIT_TEST
 
@@ -11,7 +11,7 @@
 //#define DEBUG_UT_LOGGING
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect.
   }
@@ -42,7 +42,7 @@ struct Data {
 test(a_RAM) {
   RAMStore store = RAMStore(STORE_SIZE);
   assertFalse(store.expiringMedia());
-  readWrite(&store, __FILE_NAME_STR);
+  readWrite(&store);
 }
 
 
@@ -53,20 +53,22 @@ test(b_EEPROM) {
   #else
     EEPROMStore store = EEPROMStore(STORE_OFFSET, STORE_SIZE);
     assertTrue(store.expiringMedia());
-    readWrite(&store, __FILE_NAME_STR)
+    readWrite(&store);
   #endif
 }
 
 
 test(c_FRAM) {
+  Serial.println(F("NOTE: If you don’t have FRAM memory installed, then don’t worry about the following assertion failure"));
   FRAMStore store1 = FRAMStore(STORE_OFFSET, STORE_SIZE);
   assertFalse(store1.expiringMedia());
   bool connected = store1.init();
   assertTrue(connected);
-  readWrite(&store1, __FILE_NAME_STR);
+  readWrite(&store1);
 }
 
 test(d_FRAM) {
+  Serial.println(F("NOTE: If you don’t have FRAM memory installed, then don’t worry about the following assertion failure"));
   FRAMStore store1 = FRAMStore(STORE_OFFSET, STORE_SIZE); 
   FRAMStore store2 = FRAMStore(&store1, STORE_SIZE);
   bool connected = store1.init();
@@ -85,12 +87,12 @@ test(d_FRAM) {
   // check that there is no interference between reads and writes of the two stores:
   fill(&store1, 111);
   fill(&store2, 222);
-  check(&store1, 111, __FILE_NAME_STR);
-  check(&store2, 222, __FILE_NAME_STR);
+  check(&store1, 111);
+  check(&store2, 222);
 }
 
 
-void readWrite(AbstractStore *store, const __FlashStringHelper *__FILE_NAME_STR) {
+void readWrite(AbstractStore *store) {
   uint8_t  a = 1;
   uint32_t b = 2000;
   Data     c;
@@ -98,7 +100,7 @@ void readWrite(AbstractStore *store, const __FlashStringHelper *__FILE_NAME_STR)
   c.p[0] = 4000;
   c.p[1] = 5000;
   
-  clear(store, __FILE_NAME_STR);
+  clear(store);
   
   //
   // 1 byte
@@ -165,13 +167,13 @@ void readWrite(AbstractStore *store, const __FlashStringHelper *__FILE_NAME_STR)
   store->read(IDX_C, rc);
   assertEqual(c.id, rc.id);
   
-  clear(store, __FILE_NAME_STR);
+  clear(store);
 }
 
 
-void clear(AbstractStore *store, const __FlashStringHelper *__FILE_NAME_STR) {
+void clear(AbstractStore *store) {
   store->clear();
-  check(store, 0, __FILE_NAME_STR);
+  check(store, 0);
 }
 
 void fill(AbstractStore *store, const uint8_t val) {
@@ -180,7 +182,7 @@ void fill(AbstractStore *store, const uint8_t val) {
   }
 }
 
-void check(AbstractStore *store, const uint8_t val, const __FlashStringHelper *__FILE_NAME_STR) {
+void check(AbstractStore *store, const uint8_t val) {
   for (uint32_t i=0; i<STORE_SIZE; i++) {
     uint8_t v = store->read8(i);
     assertEqual(v, val);

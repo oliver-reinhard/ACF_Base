@@ -1,8 +1,8 @@
-#include <ArduinoUnitX.h>
+#include <ArduinoUnit.h>
 #include "ut_ACF_State.h"
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect.
   }
